@@ -19,8 +19,9 @@ Route::get('/', function () {
     return ['Laravel' => app()->version()];
 });
 
-Route::get('/trails', [TrailController::class, 'index']);
-Route::post('/trails', [TrailController::class, 'store'])->middleware('auth:sanctum');
+Route::resource('trails', TrailController::class)->only([
+    'index', 'show', 'store', 'update', 'destroy'
+]);;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
