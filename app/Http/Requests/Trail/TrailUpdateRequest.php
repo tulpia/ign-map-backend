@@ -29,12 +29,9 @@ class TrailUpdateRequest extends FormRequest
     {
         return [
             'description' => 'sometimes',
-            'latitude' => 'sometimes|numeric',
-            'longitude' => 'sometimes|numeric',
-            'trace' => 'sometimes|string',
-            'distance' => 'sometimes|numeric',
             'difficulty' => [Rule::enum(TrailDifficulty::class), 'sometimes'],
-            'denivele' => 'sometimes|numeric',
+            'images' => 'nullable|array|min:1|max:10',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:5000',
             'time_to_complete' => 'sometimes|numeric'
         ];
     }

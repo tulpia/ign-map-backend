@@ -8,7 +8,22 @@ use Illuminate\Support\Facades\Storage;
 
 class TrailObserver
 {
-    public function creating(Trail $trail): void
+    public function creating(Trail $trail)
+    {
+        $this->saveTrace($trail);
+    }
+
+    public function created(Trail $trail)
+    {
+        $this->saveImages($trail);
+    }
+
+    public function updating(Trail $trail)
+    {
+        $this->saveTrace($trail);
+    }
+
+    public function saveTrace(Trail $trail): void
     {
         if ($trail->trace instanceof UploadedFile) {
             $stats = Trail::getStatsForTrace($trail->trace);
@@ -17,15 +32,18 @@ class TrailObserver
         }
     }
 
-    /**
-     * Handle the Trail "updated" event.
-     */
-    public function saving(Trail $trail): void
+    public function saveImages(Trail $trail): void
     {
-        if ($trail->trace instanceof UploadedFile) {
-            $stats = Trail::getStatsForTrace($trail->trace);
-            $trail->fill($stats);
-            $trail->trace = $trail->trace->store('traces');
+        $request = request();
+
+        if ($request->hasFile('images') && is_array($request->file('images'))) {
+            foreach ($request->file('images') as $image) {
+                if ($image instanceof UploadedFile) {
+                    $path = $image->store('traces/images');
+
+                    $trail->images()->create(['path' => $path]);
+                }
+            }
         }
     }
 
@@ -35,5 +53,10 @@ class TrailObserver
     public function deleting(Trail $trail): void
     {
         Storage::delete($trail->trace);
+
+        foreach ($trail->images as $image) {
+            Storage::delete($image->path);
+            $image->delete();
+        }
     }
 }

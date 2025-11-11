@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use phpGPX\phpGPX;
@@ -29,13 +30,25 @@ class Trail extends Model
         'time_to_complete'
     ];
 
+    /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = ['images'];
+
     protected $casts = [
-        'difficulty' => TrailDifficulty::class,
+        'difficulty' => TrailDifficulty::class
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(TrailImage::class);
     }
 
     public static function belongsToUser(string $id, User $user): Trail|null

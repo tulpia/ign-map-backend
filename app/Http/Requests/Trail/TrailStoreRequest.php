@@ -30,7 +30,9 @@ class TrailStoreRequest extends FormRequest
             'description' => 'required',
             'trace' => ['required', 'file', 'mimes:gpx,xml'],
             'difficulty' => [Rule::enum(TrailDifficulty::class), 'required'],
-            'time_to_complete' => 'required|numeric'
+            'time_to_complete' => 'required|numeric',
+            'images' => 'nullable|array|min:1|max:10',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:5000',
         ];
     }
 }

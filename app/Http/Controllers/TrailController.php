@@ -21,7 +21,7 @@ class TrailController extends Controller
      */
     public function index(): JsonResponse
     {
-        return response()->json(DB::table('trails')->paginate(50));
+        return response()->json(Trail::paginate(50));
     }
 
     /**
@@ -30,7 +30,6 @@ class TrailController extends Controller
     public function store(TrailStoreRequest $request)
     {
         // On sauvegarde le trace
-
         $trail = new Trail($request->validated());
 
         return $request->user()->trails()->save($trail);
@@ -41,7 +40,7 @@ class TrailController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        return response()->json(DB::table('trails')->where('id', $id)->first());
+        return response()->json(Trail::where('id', $id)->first());
     }
 
     /**
