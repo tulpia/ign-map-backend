@@ -57,4 +57,11 @@ class RegisteredUserController extends Controller
             'user' => $user
         ]);
     }
+
+    public function trails(Request $request): JsonResponse
+    {
+        return response()->json([
+            'data' => $request->user()->trails()->get()->all()
+        ]);
+    }
 }
