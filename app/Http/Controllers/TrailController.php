@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\DB;
 
 class TrailController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth:sanctum')->only(['store', 'update', 'destroy']);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -24,13 +29,9 @@ class TrailController extends Controller
      */
     public function store(TrailStoreRequest $request)
     {
-        $this->middleware('auth:sanctum');
+        // On sauvegarde le trace
 
-        // Faut valider d'abord
-        $validate = $request->validated();
-
-        // Magie, ca marche
-        $trail = new Trail($validate);
+        $trail = new Trail($request->validated());
 
         return $request->user()->trails()->save($trail);
     }
@@ -48,8 +49,6 @@ class TrailController extends Controller
      */
     public function update(TrailUpdateRequest $request, string $id)
     {
-        $this->middleware('auth:sanctum');
-
         $trail = Trail::findOrFail($id);
 
         if ($trail && $request->user()->can('update', $trail)) {
@@ -66,8 +65,6 @@ class TrailController extends Controller
      */
     public function destroy(string $id, Request $request)
     {
-        $this->middleware('auth:sanctum');
-
         $trail = Trail::findOrFail($id);
 
         if ($request->user()->can('delete', $trail)) {

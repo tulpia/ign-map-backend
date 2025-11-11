@@ -6,6 +6,7 @@ use App\Enums\Trail\TrailDifficulty;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 
 class TrailStoreRequest extends FormRequest
 {
@@ -27,12 +28,8 @@ class TrailStoreRequest extends FormRequest
         return [
             'title' => 'required|unique:trails|max:255',
             'description' => 'required',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'trace' => 'required|string',
-            'distance' => 'required|numeric',
+            'trace' => ['required', 'file', 'mimes:gpx,xml'],
             'difficulty' => [Rule::enum(TrailDifficulty::class), 'required'],
-            'denivele' => 'required|numeric',
             'time_to_complete' => 'required|numeric'
         ];
     }
