@@ -30,13 +30,6 @@ class Trail extends Model
         'time_to_complete'
     ];
 
-    /**
-     * The relationships that should always be loaded.
-     *
-     * @var array
-     */
-    protected $with = ['images'];
-
     protected $casts = [
         'difficulty' => TrailDifficulty::class
     ];

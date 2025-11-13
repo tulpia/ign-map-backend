@@ -6,7 +6,6 @@ use App\Enums\Trail\TrailDifficulty;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\File;
 
 class TrailStoreRequest extends FormRequest
 {

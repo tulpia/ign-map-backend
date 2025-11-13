@@ -28,11 +28,14 @@ class TrailUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'description' => 'sometimes',
-            'difficulty' => [Rule::enum(TrailDifficulty::class), 'sometimes'],
+            // @todo : check si le titre existe déjà ?
+//            'title' => 'required|unique:trails|max:255',
+            'description' => 'required',
+            'trace' => ['required', 'file', 'mimes:gpx,xml'],
+            'difficulty' => [Rule::enum(TrailDifficulty::class), 'required'],
+            'time_to_complete' => 'required|numeric',
             'images' => 'nullable|array|min:1|max:10',
             'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:5000',
-            'time_to_complete' => 'sometimes|numeric'
         ];
     }
 }

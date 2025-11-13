@@ -23,9 +23,18 @@ class TrailObserver
         $this->saveTrace($trail);
     }
 
+    public function updated(Trail $trail)
+    {
+        $this->saveImages($trail);
+    }
+
     public function saveTrace(Trail $trail): void
     {
         if ($trail->trace instanceof UploadedFile) {
+            if ($trail->getOriginal('trace')) {
+                Storage::delete($trail->getOriginal('trace'));
+            }
+
             $stats = Trail::getStatsForTrace($trail->trace);
             $trail->fill($stats);
             $trail->trace = $trail->trace->store('traces');
@@ -34,6 +43,12 @@ class TrailObserver
 
     public function saveImages(Trail $trail): void
     {
+        // Ouais on supprime tout, flemme de check
+        foreach ($trail->images as $image) {
+            Storage::delete($image->path);
+            $image->delete();
+        }
+
         $request = request();
 
         if ($request->hasFile('images') && is_array($request->file('images'))) {
@@ -50,7 +65,7 @@ class TrailObserver
     /**
      * Handle the Trail "deleted" event.
      */
-    public function deleting(Trail $trail): void
+    public function deleted(Trail $trail): void
     {
         Storage::delete($trail->trace);
 

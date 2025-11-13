@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\TrailResource;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -58,10 +60,10 @@ class RegisteredUserController extends Controller
         ]);
     }
 
-    public function trails(Request $request): JsonResponse
+    public function trails(Request $request): AnonymousResourceCollection
     {
-        return response()->json([
-            'data' => $request->user()->trails()->get()->all()
-        ]);
+        $trails = $request->user()->trails()->with('images')->get()->all();
+
+        return TrailResource::collection($trails);
     }
 }

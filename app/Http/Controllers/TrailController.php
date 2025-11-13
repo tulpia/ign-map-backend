@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Trail\TrailStoreRequest;
 use App\Http\Requests\Trail\TrailUpdateRequest;
+use App\Http\Resources\TrailResource;
 use App\Models\Trail;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class TrailController extends Controller
 {
@@ -19,9 +19,9 @@ class TrailController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
+    public function index(): AnonymousResourceCollection
     {
-        return response()->json(Trail::paginate(50));
+        return TrailResource::collection(Trail::with('images')::paginate(50));
     }
 
     /**
@@ -38,9 +38,9 @@ class TrailController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id): JsonResponse
+    public function show(string $id): TrailResource
     {
-        return response()->json(Trail::where('id', $id)->first());
+        return new TrailResource(Trail::with('images')->findOrFail($id));
     }
 
     /**
@@ -48,12 +48,12 @@ class TrailController extends Controller
      */
     public function update(TrailUpdateRequest $request, string $id)
     {
-        $trail = Trail::findOrFail($id);
+        $trail = Trail::with('images')->findOrFail($id);
 
         if ($trail && $request->user()->can('update', $trail)) {
             $trail->update($request->validated());
 
-            return response()->json(['message' => 'Trail updated successfully', 'trail' => $trail]);
+            return response()->json(['message' => 'Trail updated successfully', 'trail' => $trail->toResource()]);
         }
 
         return response()->json(['message' => 'Unauthorized.'], 403);
