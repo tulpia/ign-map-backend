@@ -44,6 +44,11 @@ class Trail extends Model
         return $this->hasMany(TrailImage::class);
     }
 
+    public function avis(): HasMany
+    {
+        return $this->hasMany(Avis::class);
+    }
+
     public static function belongsToUser(string $id, User $user): Trail|null
     {
         return self::where('id', $id)->where('user_id', $user->getAttribute('id'))->first();

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AvisController;
 use App\Http\Controllers\TrailController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +23,12 @@ Route::get('/', function () {
 Route::resource('trails', TrailController::class)->only([
     'index',
     'show',
+    'store',
+    'update',
+    'destroy'
+]);
+
+Route::resource('trails.avis', AvisController::class)->only([
     'store',
     'update',
     'destroy'

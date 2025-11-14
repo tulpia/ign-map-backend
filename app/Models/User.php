@@ -48,4 +48,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Trail::class);
     }
+
+    public function avis(): HasMany
+    {
+        return $this->hasMany(Avis::class);
+    }
 }
