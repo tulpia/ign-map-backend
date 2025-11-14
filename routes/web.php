@@ -20,8 +20,12 @@ Route::get('/', function () {
 });
 
 Route::resource('trails', TrailController::class)->only([
-    'index', 'show', 'store', 'update', 'destroy'
-]);;
+    'index',
+    'show',
+    'store',
+    'update',
+    'destroy'
+]);
 
 Route::get('/user', function (Request $request) {
     return $request->user();
