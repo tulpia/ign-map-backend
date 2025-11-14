@@ -30,7 +30,20 @@ class TrailResource extends JsonResource
                 'difficulty' => $this->difficulty,
                 'distance' => $this->distance,
                 'time_to_complete' => $this->time_to_complete,
-            ]
+            ],
+            'avis' => $this->avis->map(function ($avis) {
+                return [
+                    'id' => $avis->id,
+                    'note' => $avis->note,
+                    'description' => $avis->description,
+                    'user' => [
+                        'id' => $avis->user->id,
+                        'name' => $avis->user->name,
+                    ],
+                    'created_at' => $avis->created_at,
+                ];
+            }),
+            'avis_note' => $this->avis->avg('note'),
         ];
     }
 }

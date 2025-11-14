@@ -16,8 +16,6 @@ use phpGPX\phpGPX;
 #[ObservedBy([TrailObserver::class])]
 class Trail extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'title',
         'description',
@@ -28,6 +26,10 @@ class Trail extends Model
         'difficulty',
         'denivele',
         'time_to_complete'
+    ];
+
+    protected $with = [
+        'avis'
     ];
 
     protected $casts = [
