@@ -21,7 +21,7 @@ class TrailController extends Controller
      */
     public function index(): AnonymousResourceCollection
     {
-        return TrailResource::collection(Trail::with('images')::paginate(50));
+        return TrailResource::collection(Trail::with('images')->paginate(12));
     }
 
     /**
@@ -38,9 +38,9 @@ class TrailController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id): TrailResource
+    public function show(Trail $trail): TrailResource
     {
-        return new TrailResource(Trail::with('images')->findOrFail($id));
+        return new TrailResource($trail->load(['images']));
     }
 
     /**
