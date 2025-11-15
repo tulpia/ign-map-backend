@@ -8,14 +8,6 @@ use App\Models\User;
 class AvisPolicy
 {
     /**
-     * Create a new policy instance.
-     */
-    public function __construct()
-    {
-        //
-    }
-
-    /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool

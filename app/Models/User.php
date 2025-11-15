@@ -53,4 +53,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Avis::class);
     }
+
+    public function lists(): HasMany
+    {
+        return $this->hasMany(TrailList::class);
+    }
 }

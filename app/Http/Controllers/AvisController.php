@@ -6,19 +6,16 @@ use App\Http\Requests\Avis\AvisStoreRequest;
 use App\Http\Requests\Avis\AvisUpdateRequest;
 use App\Models\Avis;
 use App\Models\Trail;
+use Illuminate\Http\Response;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AvisController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:sanctum')->only(['store', 'update', 'destroy']);
-    }
-
     /**
      * Store a newly created resource in storage.
      */
-    public function store(AvisStoreRequest $request, Trail $trail)
+    public function store(AvisStoreRequest $request, Trail $trail): JsonResponse
     {
         $avis = new Avis($request->validated());
 
@@ -33,17 +30,21 @@ class AvisController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(AvisUpdateRequest $request, Trail $trail, Avis $avi)
+    public function update(AvisUpdateRequest $request, Trail $trail, Avis $avi): JsonResponse
     {
-        $avi->update($request->validated());
+        if ($request->user()->can('update', $avi)) {
+            $avi->update($request->validated());
 
-        return response()->json(['message' => 'Trail updated successfully']);
+            return response()->json(['message' => 'Trail updated successfully']);
+        }
+
+        return response()->json(['message' => 'Unauthorized.'], 403);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Trail $trail, Avis $avi, Request $request)
+    public function destroy(Trail $trail, Avis $avi, Request $request): JsonResponse|Response
     {
         if ($request->user()->can('delete', $avi)) {
             Avis::destroy($avi->id);

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Avis;
+namespace App\Http\Requests\TrailList;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class AvisUpdateRequest extends FormRequest
+class UpdateTrailListRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -15,8 +15,9 @@ class AvisUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'note' => 'required|integer|min:0|max:5',
-            'description' => 'required|string|max:255'
+            'name' => 'required|string|max:30',
+            'trails' => 'required|array',
+            'trails.*' => 'integer|exists:trails,id',
         ];
     }
 }

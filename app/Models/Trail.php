@@ -5,9 +5,9 @@ namespace App\Models;
 use App\Enums\Trail\TrailDifficulty;
 use App\Observers\TrailObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
@@ -49,6 +49,11 @@ class Trail extends Model
     public function avis(): HasMany
     {
         return $this->hasMany(Avis::class);
+    }
+
+    public function lists(): BelongsToMany
+    {
+        return $this->belongsToMany(TrailList::class, 'trail_lists', 'list_id', 'trail_id')->withTimestamps();
     }
 
     public static function belongsToUser(string $id, User $user): Trail|null
