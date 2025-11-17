@@ -17,11 +17,11 @@ class TrailResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
+            'user_id' => $this->user->id,
             'description' => $this->description,
             'trace' => $this->trace,
             'images' => $this->images->map(fn($img) => [
-                'path' => $img->path,
-                'url' => $img->url,
+                $img->url
             ]),
             'stats' => [
                 'denivele' => $this->denivele,

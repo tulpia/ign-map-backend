@@ -37,7 +37,7 @@ class TrailObserver
 
             $stats = Trail::getStatsForTrace($trail->trace);
             $trail->fill($stats);
-            $trail->trace = $trail->trace->store('traces');
+            $trail->trace = $trail->trace->store('traces', 'public');
         }
     }
 
@@ -54,7 +54,7 @@ class TrailObserver
         if ($request->hasFile('images') && is_array($request->file('images'))) {
             foreach ($request->file('images') as $image) {
                 if ($image instanceof UploadedFile) {
-                    $path = $image->store('traces/images');
+                    $path = $image->store('traces/images', 'public');
 
                     $trail->images()->create(['path' => $path]);
                 }
