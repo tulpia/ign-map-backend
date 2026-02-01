@@ -31,7 +31,7 @@ class TrailUpdateRequest extends FormRequest
             // @todo : check si le titre existe déjà ?
 //            'title' => 'required|unique:trails|max:255',
             'description' => 'required',
-            'trace' => ['required', 'file', 'mimes:gpx,xml'],
+            'trace' => ['nullable', 'file', 'mimes:gpx,xml'],
             'difficulty' => [Rule::enum(TrailDifficulty::class), 'required'],
             'time_to_complete' => 'required|numeric',
             'images' => 'nullable|array|min:1|max:10',

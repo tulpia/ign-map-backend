@@ -43,20 +43,22 @@ class TrailObserver
 
     public function saveImages(Trail $trail): void
     {
-        // Ouais on supprime tout, flemme de check
-        foreach ($trail->images as $image) {
-            Storage::delete($image->path);
-            $image->delete();
-        }
+        if ($trail->images) {
+            // Ouais on supprime tout, flemme de check
+            foreach ($trail->images as $image) {
+                Storage::delete($image->path);
+                $image->delete();
+            }
 
-        $request = request();
+            $request = request();
 
-        if ($request->hasFile('images') && is_array($request->file('images'))) {
-            foreach ($request->file('images') as $image) {
-                if ($image instanceof UploadedFile) {
-                    $path = $image->store('traces/images', 'public');
+            if ($request->hasFile('images') && is_array($request->file('images'))) {
+                foreach ($request->file('images') as $image) {
+                    if ($image instanceof UploadedFile) {
+                        $path = $image->store('traces/images', 'public');
 
-                    $trail->images()->create(['path' => $path]);
+                        $trail->images()->create(['path' => $path]);
+                    }
                 }
             }
         }

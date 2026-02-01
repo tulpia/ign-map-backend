@@ -19,9 +19,26 @@ class TrailController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
-        return TrailResource::collection(Trail::with('images')->paginate(12));
+        $ressource = Trail::with('images');
+
+        // Filtrage par bounding box (lat/lng)
+        if ($request->filled('lat_min') && $request->filled('lat_max') && 
+            $request->filled('lng_min') && $request->filled('lng_max')) {
+            $ressource->whereBetween('latitude', [$request->input('lat_min'), $request->input('lat_max')])
+                      ->whereBetween('longitude', [$request->input('lng_min'), $request->input('lng_max')]);
+        }
+
+        // Filtrage des valeurs dans la requete pour pas filtrer sur n'importe quoi
+        $fillables = (new Trail())->getFillable();
+        foreach ($fillables as $fillable) {
+            if ($request->filled($fillable) && !in_array($fillable, ['latitude', 'longitude'])) {
+                $ressource->where($fillable, $request->input($fillable));
+            }
+        }
+
+        return TrailResource::collection($ressource->paginate(12));
     }
 
     /**
@@ -62,12 +79,12 @@ class TrailController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id, Request $request)
+    public function destroy(Request $request, string $id)
     {
         $trail = Trail::findOrFail($id);
 
         if ($request->user()->can('delete', $trail)) {
-            Trail::destroy($id);
+            $trail->delete();
 
             return response()->noContent();
         }
