@@ -43,7 +43,7 @@ class TrailResource extends JsonResource
                     'created_at' => $avis->created_at,
                 ];
             }),
-            'avis_note' => $this->avis->avg('note'),
+            'avis_note' => $this->avis_avg_note ?? $this->avis->avg('note'),
         ];
     }
 }

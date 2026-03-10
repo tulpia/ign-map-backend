@@ -11,7 +11,8 @@
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.8",
-        "sibyx/phpgpx": "1.3.0"
+        "sibyx/phpgpx": "1.3.0",
+        "spatie/laravel-query-builder": "^6.4"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

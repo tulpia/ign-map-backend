@@ -2,82 +2,115 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Trail\StoreTrailAction;
+use App\Actions\Trail\UpdateTrailAction;
 use App\Http\Requests\Trail\TrailStoreRequest;
 use App\Http\Requests\Trail\TrailUpdateRequest;
 use App\Http\Resources\TrailResource;
 use App\Models\Trail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
+/**
+ * Controller for handling Trail related API requests.
+ */
 class TrailController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(
+        private StoreTrailAction $storeTrailAction,
+        private UpdateTrailAction $updateTrailAction
+    ) {
         $this->middleware('auth:sanctum')->only(['store', 'update', 'destroy']);
     }
 
     /**
-     * Display a listing of the resource.
+     * Display a listing of trails with advanced filtering.
+     * 
+     * @param Request $request
+     * @return AnonymousResourceCollection
      */
     public function index(Request $request): AnonymousResourceCollection
     {
-        $ressource = Trail::with('images');
+        $trails = QueryBuilder::for(Trail::class)
+            ->allowedFilters([
+                'title',
+                'difficulty',
+                'distance',
+                'denivele', // Will be changed in Step 1
+                'time_to_complete',
+                // Bounding box filter
+                AllowedFilter::callback('bounds', function (Builder $query, $value) {
+                    if (is_array($value) && count($value) === 4) {
+                        [$latMin, $latMax, $lngMin, $lngMax] = $value;
+                        $query->whereBetween('latitude', [$latMin, $latMax])
+                              ->whereBetween('longitude', [$lngMin, $lngMax]);
+                    }
+                }),
+            ])
+            ->allowedIncludes(['images', 'avis'])
+            ->with(['images', 'avis'])
+            ->withAvg('avis', 'note')
+            ->paginate(12);
 
-        // Filtrage par bounding box (lat/lng)
-        if ($request->filled('lat_min') && $request->filled('lat_max') && 
-            $request->filled('lng_min') && $request->filled('lng_max')) {
-            $ressource->whereBetween('latitude', [$request->input('lat_min'), $request->input('lat_max')])
-                      ->whereBetween('longitude', [$request->input('lng_min'), $request->input('lng_max')]);
-        }
-
-        // Filtrage des valeurs dans la requete pour pas filtrer sur n'importe quoi
-        $fillables = (new Trail())->getFillable();
-        foreach ($fillables as $fillable) {
-            if ($request->filled($fillable) && !in_array($fillable, ['latitude', 'longitude'])) {
-                $ressource->where($fillable, $request->input($fillable));
-            }
-        }
-
-        return TrailResource::collection($ressource->paginate(12));
+        return TrailResource::collection($trails);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created trail.
+     * 
+     * @param TrailStoreRequest $request
+     * @return TrailResource
      */
-    public function store(TrailStoreRequest $request)
+    public function store(TrailStoreRequest $request): TrailResource
     {
-        // On sauvegarde le trace
-        $trail = new Trail($request->validated());
+        $trail = $this->storeTrailAction->execute(
+            $request->user(),
+            $request->validated()
+        );
 
-        return $request->user()->trails()->save($trail);
+        return new TrailResource($trail);
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified trail.
+     * 
+     * @param Trail $trail
+     * @return TrailResource
      */
     public function show(Trail $trail): TrailResource
     {
-        return new TrailResource($trail->load(['images']));
+        return new TrailResource($trail->load(['images', 'avis'])->loadAvg('avis', 'note'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified trail.
+     * 
+     * @param TrailUpdateRequest $request
+     * @param string $id
+     * @return TrailResource|\Illuminate\Http\JsonResponse
      */
     public function update(TrailUpdateRequest $request, string $id)
     {
-        $trail = Trail::with('images')->findOrFail($id);
+        $trail = Trail::findOrFail($id);
 
-        if ($trail && $request->user()->can('update', $trail)) {
-            $trail->update($request->validated());
+        if ($request->user()->can('update', $trail)) {
+            $trail = $this->updateTrailAction->execute($trail, $request->validated());
 
-            return response()->json(['message' => 'Trail updated successfully', 'trail' => $trail->toResource()]);
+            return new TrailResource($trail);
         }
 
         return response()->json(['message' => 'Unauthorized.'], 403);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified trail.
+     * 
+     * @param Request $request
+     * @param string $id
+     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
      */
     public function destroy(Request $request, string $id)
     {
