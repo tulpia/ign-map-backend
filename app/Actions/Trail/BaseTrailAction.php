@@ -14,7 +14,8 @@ abstract class BaseTrailAction
 {
     public function __construct(
         protected GpxService $gpxService
-    ) {}
+    ) {
+    }
 
     /**
      * Handle GPX trace upload, parsing, and stat extraction.

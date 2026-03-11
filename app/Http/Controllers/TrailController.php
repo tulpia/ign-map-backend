@@ -28,20 +28,17 @@ class TrailController extends Controller
 
     /**
      * Display a listing of trails with advanced filtering.
-     * 
-     * @param Request $request
      * @return AnonymousResourceCollection
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(): AnonymousResourceCollection
     {
         $trails = QueryBuilder::for(Trail::class)
             ->allowedFilters([
                 'title',
                 'difficulty',
                 'distance',
-                'denivele', // Will be changed in Step 1
+                'denivele',
                 'time_to_complete',
-                // Bounding box filter
                 AllowedFilter::callback('bounds', function (Builder $query, $value) {
                     if (is_array($value) && count($value) === 4) {
                         [$latMin, $latMax, $lngMin, $lngMax] = $value;
@@ -60,7 +57,6 @@ class TrailController extends Controller
 
     /**
      * Store a newly created trail.
-     * 
      * @param TrailStoreRequest $request
      * @return TrailResource
      */
@@ -76,7 +72,6 @@ class TrailController extends Controller
 
     /**
      * Display the specified trail.
-     * 
      * @param Trail $trail
      * @return TrailResource
      */
@@ -87,7 +82,6 @@ class TrailController extends Controller
 
     /**
      * Update the specified trail.
-     * 
      * @param TrailUpdateRequest $request
      * @param string $id
      * @return TrailResource|\Illuminate\Http\JsonResponse
@@ -107,7 +101,6 @@ class TrailController extends Controller
 
     /**
      * Remove the specified trail.
-     * 
      * @param Request $request
      * @param string $id
      * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse

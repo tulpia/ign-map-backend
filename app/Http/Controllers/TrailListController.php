@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\TrailList\StoreTrailListAction;
+use App\Actions\TrailList\UpdateTrailListAction;
 use App\Http\Requests\TrailList\StoreTrailListRequest;
 use App\Http\Requests\TrailList\UpdateTrailListRequest;
 use App\Http\Resources\TrailListResource;
@@ -11,9 +13,16 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class TrailListController extends Controller
 {
+    public function __construct(
+        private StoreTrailListAction $storeTrailListAction,
+        private UpdateTrailListAction $updateTrailListAction
+    ) {
+        $this->middleware('auth:sanctum');
+    }
+
     public function index(Request $request): AnonymousResourceCollection
     {
-        $trailslists = $request->user()->lists()->get()->all();
+        $trailslists = $request->user()->lists()->with('trails.images')->get();
 
         return TrailListResource::collection($trailslists);
     }
@@ -23,10 +32,8 @@ class TrailListController extends Controller
      */
     public function store(StoreTrailListRequest $request)
     {
-        $list = new TrailList($request->validated());
-
         // Je ne gère pas l'assignation des trails ici, ca ne sert a rien
-        return $request->user()->lists()->create($list->attributesToArray());
+        return $this->storeTrailListAction->execute(new TrailList($request->validated()), $request->user());
     }
 
     /**
@@ -51,11 +58,7 @@ class TrailListController extends Controller
         $trailList = TrailList::findOrFail($id);
 
         if ($trailList && $request->user()->can('update', $trailList)) {
-            $trailList->update($request->safe()->only(['name']));
-
-            // Gestion des associations ici
-            $trailIds = array_map('intval', $request->safe()->only(['trails'])['trails']);
-            $trailList->trails()->syncWithoutDetaching($trailIds);
+            $this->updateTrailListAction->execute($trailList, $request->validated());
 
             return response()->json(['message' => 'List updated successfully.']);
         }
