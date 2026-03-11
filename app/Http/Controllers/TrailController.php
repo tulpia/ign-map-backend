@@ -28,25 +28,29 @@ class TrailController extends Controller
 
     /**
      * Display a listing of trails with advanced filtering.
+     * @param Request $request
      * @return AnonymousResourceCollection
      */
-    public function index(): AnonymousResourceCollection
+    public function index(Request $request): AnonymousResourceCollection
     {
         $trails = QueryBuilder::for(Trail::class)
             ->allowedFilters([
                 'title',
                 'difficulty',
-                'distance',
-                'denivele',
-                'time_to_complete',
-                AllowedFilter::callback('bounds', function (Builder $query, $value) {
-                    if (is_array($value) && count($value) === 4) {
-                        [$latMin, $latMax, $lngMin, $lngMax] = $value;
-                        $query->whereBetween('latitude', [$latMin, $latMax])
-                              ->whereBetween('longitude', [$lngMin, $lngMax]);
-                    }
+                AllowedFilter::callback('distance', function (Builder $query, $value) {
+                    $query->where('distance', '<=', $value);
+                }),
+                AllowedFilter::callback('denivele', function (Builder $query, $value) {
+                    $query->where('denivele', '<=', $value);
+                }),
+                AllowedFilter::callback('time_to_complete', function (Builder $query, $value) {
+                    $query->where('time_to_complete', '<=', $value);
                 }),
             ])
+            ->when($request->has(['lat_min', 'lat_max', 'lng_min', 'lng_max']), function (Builder $query) use ($request) {
+                $query->whereBetween('latitude', [$request->lat_min, $request->lat_max])
+                      ->whereBetween('longitude', [$request->lng_min, $request->lng_max]);
+            })
             ->allowedIncludes(['images', 'avis'])
             ->with(['images', 'avis'])
             ->withAvg('avis', 'note')
