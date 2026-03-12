@@ -21,9 +21,7 @@ class TrailResource extends JsonResource
             'user_id' => $this->user->id,
             'description' => $this->description,
             'trace' => $this->trace,
-            'images' => $this->images->map(fn($img) => [
-                $img->url
-            ]),
+            'images' => $this->images->pluck('url'),
             'stats' => [
                 'denivele' => $this->denivele,
                 'latitude' => $this->latitude,

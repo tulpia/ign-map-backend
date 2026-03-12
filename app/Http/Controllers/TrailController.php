@@ -52,6 +52,7 @@ class TrailController extends Controller
                       ->whereBetween('longitude', [$request->lng_min, $request->lng_max]);
             })
             ->allowedIncludes(['images', 'avis'])
+            ->allowedSorts(['title', 'distance', 'denivele', 'time_to_complete'])
             ->with(['images', 'avis'])
             ->withAvg('avis', 'note')
             ->paginate(12);
